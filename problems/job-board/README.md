@@ -11,6 +11,27 @@ Rules:
 - Use TypeScript (`.tsx`). The `Job` type is in [src/App.tsx](src/App.tsx).
 - Styling doesn't matter beyond being readable.
 
+## What it looks like
+
+A vertical list of simple cards (a `<ul>` of `<li>`s is fine), with a button underneath:
+
+```
+Job Board
+┌──────────────────────────────────────────────────┐
+│ Parcelwise is hiring a Senior Frontend Engineer ↗│  ← title, a link if url exists
+│ By parcelwise · 11/11/2026, 9:14:02 AM           │
+└──────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│ Lumen Labs is hiring a Product Designer          │
+│ By lumenlabs · 11/11/2026, 7:44:02 AM            │
+└──────────────────────────────────────────────────┘
+  ... (6 per page)
+
+[ Load more jobs ]
+```
+
+The id list is deliberately separate from the job details, the same as the real Hacker News API: fetch all the ids once, then fetch each job in the current page by its id.
+
 ## API
 
 The mock server runs alongside Vite. `/api` is proxied to it.

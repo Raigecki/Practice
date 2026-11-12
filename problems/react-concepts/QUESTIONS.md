@@ -190,8 +190,8 @@ useEffect(() => {
 }, [id]);
 ```
 
-> what? its just calling the function definition of setUser, not actually setting the user.
-> `.then(date => setUser(data))`
+> There is a race condition to setUser because we can't guarantee the requests will finish in order. So, we need to add a variable `let ignore = false`. Then inside of `.then(u => if (!ignore) setUser(u))` and `return () => ignore = true`
+> this way each run of useEffect gets its own variable. , So the results from fetch can come After the cleanup. having the dependency on id ensures that between user clicks, the cleanup for the previous request happens. leaving the last click to be the only one where ignore is false?
 
 **3.6** Predict what the counter shows after 5 seconds, and fix it two different ways:
 
@@ -203,19 +203,23 @@ useEffect(() => {
 ```
 
 > Oh, i think it'll just be count + 1 right? because before returning it's still the same snapshot?
-> so you need `setInterval(() => setCount(count + 1), 1000`
+> so you need `setInterval(() => setCount(prev => prev + 1), 1000`
+> or add count to deps so it creates a new interval every tick
 
 **3.7** `useEffect` vs `useLayoutEffect`: what's the difference, and when do you need the layout version?
 
->
+> useEffect runs after paint asynchronously. useLayoutEffect is synchronous before paint. (Used for tooltip positioning, scroll restoration, etc) It blocks the paint though.
 
 **3.8** Name three situations where you **don't** need an effect, and say what to do instead.
 
->
+> Derived data - filtering, calculations, etc. Do it in useMemo.
+> displaying something based on click - try to use callback functions
+> Resetting the state on prop change. use Key or usecallback to parents onChange
 
 **3.9** Why can't you write `useEffect(async () => { ... })`?
 
->
+> useEffect expects a cleanup or nothing at all. So to define an async function it has to be
+> `useEffect(() => { (async() => {}) })`
 
 ---
 

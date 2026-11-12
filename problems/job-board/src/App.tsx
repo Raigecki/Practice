@@ -1,3 +1,5 @@
+import JobBoard from "./components/JobBoard";
+
 export type Job = {
   id: number;
   type: "job";
@@ -11,6 +13,7 @@ export default function App() {
   return (
     <main className="app">
       <h1>Job Board</h1>
+      <JobBoard />
       {/* your code here */}
     </main>
   );
