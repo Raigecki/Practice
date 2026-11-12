@@ -15,6 +15,8 @@ async function fetchJob(id: number, signal: AbortSignal) {
   return response.json();
 }
 
+async function retry() {}
+
 export default function useGetJobsById({ ids }: Props) {
   const [data, setData] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
