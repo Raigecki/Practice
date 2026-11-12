@@ -1,13 +1,5 @@
 import { useEffect, useState } from "react";
-
-export type Job = {
-  id: number;
-  type: "string";
-  by: string;
-  title: string;
-  time: number;
-  url: string;
-};
+import { Job } from "../App";
 
 type Props = {
   ids: number[];

@@ -40,7 +40,7 @@ export default function JobList({ jobIds }: Props) {
           }}
         >
           {job.url ? (
-            <a href={job.url}>
+            <a href={job.url} target="_blank" rel="noopener noreferrer">
               <h3>{job.title}</h3>
             </a>
           ) : (
@@ -53,6 +53,7 @@ export default function JobList({ jobIds }: Props) {
           </div>
         </div>
       ))}
+      {error ? <div>{error.message}</div> : null}
       {isLoading && cursorIndex >= 6 ? (
         <div style={{ display: "flex", width: "100%" }}>Loading...</div>
       ) : null}
