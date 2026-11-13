@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import useGetJobsById from "../hooks/use-get-jobs";
 
 type Props = {
@@ -6,13 +5,9 @@ type Props = {
 };
 
 export default function JobList({ jobIds }: Props) {
-  const [cursorIndex, setCursorIndex] = useState(0);
 
-  const currentBatch = useMemo(
-    () => jobIds.slice(cursorIndex, cursorIndex + 6),
-    [cursorIndex, jobIds],
-  );
-  const { data, isLoading, error } = useGetJobsById({ ids: currentBatch });
+
+  const { data, isLoading, error, cursorIndex, loadMore, retry } = useGetJobsById({ ids: jobIds });
   if (isLoading && cursorIndex < 6) {
     return <div>Loading...</div>;
   }
@@ -53,14 +48,26 @@ export default function JobList({ jobIds }: Props) {
           </div>
         </div>
       ))}
-      {error ? <div>{error.message}</div> : null}
+      {error ? <div style={{
+        width: "100%",
+        display: "flex", 
+        flexDirection: "row", 
+        justifyContent:"space-between"
+      }}>
+        {error.message}
+        <button onClick={() => {
+          retry()
+        }}>Retry</button>
+      </div> : null}
       {isLoading && cursorIndex >= 6 ? (
         <div style={{ display: "flex", width: "100%" }}>Loading...</div>
       ) : null}
       {jobIds.length - cursorIndex > 6 ? (
         <button
           disabled={isLoading}
-          onClick={() => setCursorIndex((prev) => prev + 6)}
+          onClick={() => {
+            loadMore()
+          }}
         >
           Load more
         </button>
