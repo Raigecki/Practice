@@ -58,6 +58,12 @@ GreatFrontEnd-style exercises the user chose to drill **async work, races and ef
 - **Autocomplete:** `/api/search?q=`. Shorter queries are slower, so stale responses land last. `q=error` returns a 500. Parts: basic + highlight → race fix + hand-rolled debounce + abort → combobox keyboard/ARIA (`aria-activedescendant`, blur-before-click gotcha) → per-instance cache + generic `<Autocomplete<T>>`.
 - Watch for: setting state from aborted requests, missing effect cleanup, `Promise.all` dropping a whole page, and inline `fetchOptions` in deps causing refetch loops.
 
+**Job Board progress (11-11 → 11-13):** Parts 1–2 done. Part 3 skipped by choice: the page-size dropdown was built but needs `key={pageSize}`, and the single `useJobs` hook was not done. Moved on to Part 4.
+- Final design: `useGetJobStories` (ids, event-driven `fetchData` + `retry`) gates the render of `JobList`, which uses `useGetJobsById` (`Record<number, Job>` rendered via `jobIds.slice(0, cursor)`, `allSettled`, `failedIds`, per-call AbortController in a ref, mount effect only for the first page).
+- Concepts landed: `catch` is `unknown`; cleanup must be returned from the effect, not the async fn; a controller created in the render body is shared and already aborted under StrictMode, so create one per call and keep it in a ref; `Promise.all`/`allSettled` keep input order; integer object keys iterate in ascending order; fetches caused by events go in handlers, not effects that watch state; re-render ≠ remount (use `key` to reset).
+- New recurring mistakes: an untyped `response.json()` (`Promise<any>`) hid a real bug (`indexOf(job)` in a number[]); non-idempotent effects (`prev + 6`) under StrictMode; changing what `cursorIndex` meant without updating its readers.
+- The user challenged style ("lazy useState looks bad") and was right that the design was the smell. They prefer to understand *why* the idiomatic shape is idiomatic.
+
 ## Recurring mistakes to watch for
 
 - **Changing the state shape mid-build** (string → Set → Record → array). Push them to decide the shape up front.
@@ -77,3 +83,9 @@ GreatFrontEnd-style exercises the user chose to drill **async work, races and ef
 3. Build in vertical slices and run each one in the browser.
 4. When a new requirement lands, ask "what does this need to know, and do I already have it?" so you build one registry, not two.
 5. Think out loud, and name the tradeoffs you're skipping.
+
+### 2026-11-19: `problems/doordash-dev-console/code-craft/01-service-owner` (async TS, no React)
+
+Class `OwnerResolver` with a catalog, then team and on-call called in parallel. Parts 1–3 pass (17/18). Part 4 has the TTL cache done but no in-flight dedupe yet. Run with `npx vitest run --globals 01-service-owner`, because there's no vitest config and `describe` is undefined without the flag.
+- Landed: critical call awaited first (throws) vs. enrichment via `allSettled` (degrades to warnings); `withTimeout` built on `Promise.race` + `finally(clearTimeout)`; a worker pool with a shared index claimed before the `await` (safe because JS is single-threaded); writing results by index to keep input order.
+- Open: cache the *promise* (in-flight map) to dedupe; the race doesn't cancel the loser (the dead `withTimeout2`/AbortSignal idea is the discussion answer); resolve option defaults once in the constructor; `maxConcurrency <= 0` isn't clamped.

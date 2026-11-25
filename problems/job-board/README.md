@@ -79,7 +79,7 @@ Turn on `?failRate=0.3` for your **item** requests.
 - If the ids request fails, show an error with Retry too.
 - **No double fetches:**
   - Clicking "Load more" quickly several times must load exactly one page.
-  - StrictMode (already on in `main.tsx`) mounts effects twice in dev. The first page must still be fetched and shown **once**, so check the server log.
+  - StrictMode (already on in `main.tsx`) mounts effects twice in dev. The first page must still be **shown once**, with no duplicate or skipped jobs. Seeing its requests twice in the server log is expected in dev, as long as the first set is aborted and never touches state.
 
 > Think: `Promise.all` vs `Promise.allSettled`. Which do you want here, and why?
 
