@@ -136,9 +136,11 @@ export function weekOverWeekSpikes(
 
 /**
  * Follow up:
- * 1. If there are 2 billion rows, the simpliest first solution would be real-time aggreation. The costs
- * percent changes is continuously updated.
- * 2. In the DB. We can probably index a hash of (day + service) and enforce it to be unique.
+ * 1. If there are 2 billion rows and data can be late, the simpliest first solution would be daily batch pre-aggregation. The costs
+ * percent changes is continuously updated. We can also use a columnar database fo faster computation.
+ * 2. In the DB. We can probably index a key of (day + service). This solves the idempotency issue. For the 3 days late issue,
+ * we will have to always run each day + the last 3 days. We can also keep and alerts table to avoid allerting twice.
+ *  If an alert was sent out, resolve it after correction.
  * 3. The most fair way is to also track each usage per team separately and charge from that team's budget.
  * First start with showing each team their usage data. When we find that the data is accurate, we can charge
  * each team's budget. Splitting the total cost will cause rouding errors so I can use the largest remainder method
@@ -146,7 +148,9 @@ export function weekOverWeekSpikes(
  * I think it's best to give each team a report of their utilization to incentivize implementing auto scaling
  * to get a more efficient usage.
  * 4. This is a problem if the data comes in a few days late. The only way to mitigate this is to keep a
- * separate record of which team owns which service per day and always check the aggregation against that
- * 5. huh????????
- *
+ * separate record of which team owns which service per day and always check the aggregation against that. The chargeback should
+ * be done by who owned the service during that time. If we really want to avoid alerting, then we can count the previous week's
+ * spending for that service with the new team's spending with current week's spending.
+ *5. Give an LLM API's to call such as getWeeklyCostByTeam(), getWeeklyCostByServiceByTeam(), getWeeklyServiceCost(),
+ * getOwnershipChanges(), etc. Let the code do the arithmetic and have the LLM make the analysis as given by the finance person.
  */

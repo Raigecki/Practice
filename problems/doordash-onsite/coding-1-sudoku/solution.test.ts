@@ -4,8 +4,10 @@ import type { Board, BoxShape } from "./types";
 import { InvalidBoardError } from "./types";
 
 /** "53..7...." → [5,3,0,0,7,0,0,0,0] */
-const parse = (...rows: string[]): Board => rows.map((row) => [...row].map((ch) => (ch === "." ? 0 : Number(ch))));
-const empty = (n: number): Board => Array.from({ length: n }, () => new Array(n).fill(0));
+const parse = (...rows: string[]): Board =>
+  rows.map((row) => [...row].map((ch) => (ch === "." ? 0 : Number(ch))));
+const empty = (n: number): Board =>
+  Array.from({ length: n }, () => new Array(n).fill(0));
 const clone = (b: Board): Board => b.map((row) => [...row]);
 
 const SIX: BoxShape = { boxRows: 2, boxCols: 3 };
@@ -22,15 +24,22 @@ function isSolved(board: Board, { boxRows, boxCols }: BoxShape): boolean {
   for (let br = 0; br < n; br += boxRows) {
     for (let bc = 0; bc < n; bc += boxCols) {
       const box: number[] = [];
-      for (let r = br; r < br + boxRows; r++) for (let c = bc; c < bc + boxCols; c++) box.push(board[r][c]);
+      for (let r = br; r < br + boxRows; r++)
+        for (let c = bc; c < bc + boxCols; c++) box.push(board[r][c]);
       units.push(box);
     }
   }
-  return units.every((u) => u.length === n && [...u].sort((a, b) => a - b).every((v, i) => v === i + 1));
+  return units.every(
+    (u) =>
+      u.length === n &&
+      [...u].sort((a, b) => a - b).every((v, i) => v === i + 1),
+  );
 }
 
 function keepsGivens(puzzle: Board, solved: Board): boolean {
-  return puzzle.every((row, r) => row.every((v, c) => v === 0 || solved[r][c] === v));
+  return puzzle.every((row, r) =>
+    row.every((v, c) => v === 0 || solved[r][c] === v),
+  );
 }
 
 const PUZZLE = parse(
@@ -57,7 +66,14 @@ const SOLUTION = parse(
   "345286179",
 );
 
-const SIX_SOLVED = parse("123456", "456123", "231564", "564231", "312645", "645312");
+const SIX_SOLVED = parse(
+  "123456",
+  "456123",
+  "231564",
+  "564231",
+  "312645",
+  "645312",
+);
 
 describe("DoorDash onsite coding 1: Sudoku", () => {
   describe("Part 1: validateBoard", () => {
@@ -76,19 +92,37 @@ describe("DoorDash onsite coding 1: Sudoku", () => {
     it("duplicate in a row", () => {
       const b = clone(PUZZLE);
       b[0][8] = 7; // row 0 already has 7 at col 4
-      expect(validateBoard(b)).toEqual({ valid: false, conflicts: [[0, 4], [0, 8]] });
+      expect(validateBoard(b)).toEqual({
+        valid: false,
+        conflicts: [
+          [0, 4],
+          [0, 8],
+        ],
+      });
     });
 
     it("duplicate in a column", () => {
       const b = clone(PUZZLE);
       b[8][0] = 4; // col 0 already has 4 at row 4
-      expect(validateBoard(b)).toEqual({ valid: false, conflicts: [[4, 0], [8, 0]] });
+      expect(validateBoard(b)).toEqual({
+        valid: false,
+        conflicts: [
+          [4, 0],
+          [8, 0],
+        ],
+      });
     });
 
     it("duplicate in a box only (different row and column)", () => {
       const b = clone(PUZZLE);
       b[2][0] = 3; // box 0 has 3 at (0,1); row 2 and col 0 have no 3
-      expect(validateBoard(b)).toEqual({ valid: false, conflicts: [[0, 1], [2, 0]] });
+      expect(validateBoard(b)).toEqual({
+        valid: false,
+        conflicts: [
+          [0, 1],
+          [2, 0],
+        ],
+      });
     });
 
     it("reports every cell in every conflict, unique and row-major", () => {
@@ -111,10 +145,17 @@ describe("DoorDash onsite coding 1: Sudoku", () => {
     });
 
     it("works on a 4x4 board with 2x2 boxes", () => {
-      expect(validateBoard(parse("12..", "34..", "....", "...."), FOUR).valid).toBe(true);
-      expect(validateBoard(parse("12..", "31..", "....", "...."), FOUR)).toEqual({
+      expect(
+        validateBoard(parse("12..", "34..", "....", "...."), FOUR).valid,
+      ).toBe(true);
+      expect(
+        validateBoard(parse("12..", "31..", "....", "...."), FOUR),
+      ).toEqual({
         valid: false,
-        conflicts: [[0, 0], [1, 1]],
+        conflicts: [
+          [0, 0],
+          [1, 1],
+        ],
       });
     });
 
@@ -130,8 +171,12 @@ describe("DoorDash onsite coding 1: Sudoku", () => {
     });
 
     it("throws InvalidBoardError for malformed boards", () => {
-      expect(() => validateBoard(PUZZLE.slice(0, 8))).toThrow(InvalidBoardError);
-      expect(() => validateBoard([...PUZZLE.slice(0, 8), [1, 2, 3]])).toThrow(InvalidBoardError);
+      expect(() => validateBoard(PUZZLE.slice(0, 8))).toThrow(
+        InvalidBoardError,
+      );
+      expect(() => validateBoard([...PUZZLE.slice(0, 8), [1, 2, 3]])).toThrow(
+        InvalidBoardError,
+      );
       const tooBig = clone(PUZZLE);
       tooBig[4][4] = 10;
       expect(() => validateBoard(tooBig)).toThrow(InvalidBoardError);
@@ -189,7 +234,14 @@ describe("DoorDash onsite coding 1: Sudoku", () => {
     });
 
     it("solves a 6x6 puzzle with 2x3 boxes", () => {
-      const puzzle = parse("1...5.", "..61..", "2....4", ".6.2..", "..2..5", "6....2");
+      const puzzle = parse(
+        "1...5.",
+        "..61..",
+        "2....4",
+        ".6.2..",
+        "..2..5",
+        "6....2",
+      );
       const result = solve(puzzle, SIX);
       expect(result).not.toBeNull();
       expect(isSolved(result!, SIX)).toBe(true);
@@ -200,23 +252,27 @@ describe("DoorDash onsite coding 1: Sudoku", () => {
       expect(() => solve(PUZZLE.slice(0, 8))).toThrow(InvalidBoardError);
     });
 
-    it("solves a very hard puzzle quickly (17 givens)", { timeout: 5000 }, () => {
-      const hard = parse(
-        "8........",
-        "..36.....",
-        ".7..9.2..",
-        ".5...7...",
-        "....457..",
-        "...1...3.",
-        "..1....68",
-        "..85...1.",
-        ".9....4..",
-      );
-      const result = solve(hard);
-      expect(result).not.toBeNull();
-      expect(isSolved(result!, { boxRows: 3, boxCols: 3 })).toBe(true);
-      expect(keepsGivens(hard, result!)).toBe(true);
-    });
+    it(
+      "solves a very hard puzzle quickly (17 givens)",
+      { timeout: 5000 },
+      () => {
+        const hard = parse(
+          "8........",
+          "..36.....",
+          ".7..9.2..",
+          ".5...7...",
+          "....457..",
+          "...1...3.",
+          "..1....68",
+          "..85...1.",
+          ".9....4..",
+        );
+        const result = solve(hard);
+        expect(result).not.toBeNull();
+        expect(isSolved(result!, { boxRows: 3, boxCols: 3 })).toBe(true);
+        expect(keepsGivens(hard, result!)).toBe(true);
+      },
+    );
   });
 
   describe("Part 3: countSolutions", () => {
@@ -228,9 +284,13 @@ describe("DoorDash onsite coding 1: Sudoku", () => {
       expect(countSolutions(empty(4), FOUR)).toBe(288);
     });
 
-    it("stops at the limit (an empty 9x9 has ~6.7e21 solutions)", { timeout: 2000 }, () => {
-      expect(countSolutions(empty(9), undefined, 2)).toBe(2);
-    });
+    it(
+      "stops at the limit (an empty 9x9 has ~6.7e21 solutions)",
+      { timeout: 2000 },
+      () => {
+        expect(countSolutions(empty(9), undefined, 2)).toBe(2);
+      },
+    );
 
     it("0 for conflicting or unsolvable boards", () => {
       const conflicting = clone(PUZZLE);
